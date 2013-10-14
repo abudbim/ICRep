@@ -65,6 +65,41 @@ public class MatrizCentroSim {
         return new MatrizCentroSim (resp);
      }
     
+    /**
+    * Checa se uma determinada matriz é identidade(deve ser quadrada)
+    * @return TRUE se Identidade FALSE caso contrario
+    */
+    public boolean isIdentidade() {
+
+       if (this.coeficientes.length == this.coeficientes[0].length) {
+           for (int i = 0; i < this.coeficientes.length; i ++) {
+               for (int j = 0; j < this.coeficientes.length; j++) {
+                   if (i != j && !this.coeficientes[i][j].isZero())
+                       return false;
+                   else if (i == j && !this.coeficientes[i][j].isUnitario())
+                       return false;
+               }
+           }
+           return true;
+       }
+       else
+           return false;
+    }
+    
+     /**
+    * Checa se a Matriz contem apenas zeros como elementos
+    * @return TRUE caso todos elementos sejam zero, FALSE caso contrario
+    */
+    public boolean isZero() {
+        for (int i  = 0; i < this.coeficientes.length; i++) {
+            for (int j = 0; j < this.coeficientes[0].length; j++) {
+                if (!coeficientes[i][j].isZero())
+                    return false;
+            }
+        }
+       return true;
+   }
+    
     
     public void Mostra () {
         for (int i = 0; i < coeficientes.length; i++) {

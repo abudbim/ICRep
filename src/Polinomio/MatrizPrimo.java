@@ -125,16 +125,12 @@ public class MatrizPrimo {
             return true;
         }
         
-        /*
-         * Compara as duas matrizes. Se forem iguais retorna true, caso contrario retorna false.
-         */
-        
         /**
          * Compara coeficientes de duas matrizes (Devem ter o mesmo tamanho)
          * @param b
          * @return TRUE caso todos sejam iguais, FALSE caso contrario
          */
-        public boolean compara(MatrizPrimo b) {
+        public boolean compara(MatrizCentroSim b) {
             // Se as matrizes tiverem tamanhos iguais ...
             if (this.coeficientes.length == b.coeficientes.length && this.coeficientes[0].length == b.coeficientes[0].length) {
                 for (int i = 0; i < this.coeficientes.length; i++) {
