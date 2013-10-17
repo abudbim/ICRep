@@ -130,7 +130,7 @@ public class MatrizPrimo {
          * @param b
          * @return TRUE caso todos sejam iguais, FALSE caso contrario
          */
-        public boolean compara(MatrizCentroSim b) {
+        public boolean compara(MatrizPrimo b) {
             // Se as matrizes tiverem tamanhos iguais ...
             if (this.coeficientes.length == b.coeficientes.length && this.coeficientes[0].length == b.coeficientes[0].length) {
                 for (int i = 0; i < this.coeficientes.length; i++) {

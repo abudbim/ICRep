@@ -98,7 +98,88 @@ public class MatrizCentroSim {
             }
         }
        return true;
-   }
+    }
+    
+    /**
+     * Método que compara duas matrizes 
+     * @param b Matriz para comparação
+     * @return TRUE se as matrizes possuem os mesmos coeficientes, FALSE caso contrario
+     */
+    public boolean compara(MatrizCentroSim b) {
+        // Se as matrizes tiverem tamanhos iguais ...
+        if (this.coeficientes.length == b.coeficientes.length && this.coeficientes[0].length == b.coeficientes[0].length) {
+            for (int i = 0; i < this.coeficientes.length; i++) {
+                for (int j = 0; j < this.coeficientes[0].length; j++) {
+                    if (!this.coeficientes[i][j].isEqual(b.coeficientes[i][j]))
+                        return false;
+                }
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /**
+     * Faz a soma das matrizes utilizando a soma de corposFinitos
+     * @param b Segunda matriz da soma
+     * @return Uma Matriz Centrossimetrica cujos coeficientes são a soma dos coeficientes das matrizes
+     */
+    public MatrizPrimo soma (MatrizPrimo b) {
+        if (coeficientes.length == b.coeficientes.length && coeficientes[0].length == b.coeficientes[0].length) {
+            CorpoFinitoPrimo[][] resp = new CorpoFinitoPrimo [coeficientes.length][coeficientes[0].length];
+            for (int i = 0; i < resp.length; i++) {
+                for (int j = 0; j < resp[0].length; j++) {
+                    resp[i][j] = this.coeficientes[i][j].somaR(b.coeficientes[i][j]);
+                }
+            }
+            return new MatrizPrimo (resp);
+        } 
+        else {
+                return null;
+        }
+    }
+    
+    /**
+     * Faz a subtraçção das matrizes utilizando a soma de corposFinitos
+     * @param b segunda matriz da subtração
+     * @return Uma Matriz Centrossimetrica cujos coeficientes são a difereça entre os coeficientes das matrizes
+     */
+    public MatrizPrimo subtracao (MatrizPrimo b) {
+        if (coeficientes.length == b.coeficientes.length && coeficientes[0].length == b.coeficientes[0].length) {
+            CorpoFinitoPrimo[][] resp = new CorpoFinitoPrimo [coeficientes.length][coeficientes[0].length];
+            for (int i = 0; i < resp.length; i++) {
+                for (int j = 0; j < resp[0].length; j++) {
+                    resp[i][j] = this.coeficientes[i][j].subtraiR(b.coeficientes[i][j]);
+                }
+            }
+            return new MatrizPrimo (resp);
+        } 
+        else {
+            return null;
+        }
+    }
+    
+    public MatrizCentroSim multiplicacao(MatrizCentroSim a) {
+        CorpoFinitoPrimo[][] resp;
+        MatrizCentroSim b;
+        if (this.coeficientes[0].length == a.coeficientes.length) {
+            resp = MatrizPrimo.zero( this.coeficientes.length, a.coeficientes[0].length).coeficientes;
+            for (int i = 0; i < this.coeficientes.length; i++) {
+                for (int j = 0; j < a.coeficientes[0].length; j++) {
+                    for (int k = 0; k < this.coeficientes[0].length; k++) {
+                        resp[i][j] = resp[i][j].somaR(this.coeficientes[i][k].multR(a.coeficientes[k][j]));
+                    }
+                }
+            }
+           
+            return new MatrizCentroSim(resp);
+        }
+        else {
+            return null;
+        }
+    }
     
     
     public void Mostra () {
