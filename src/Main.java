@@ -8,6 +8,8 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-        TesteCentroSim.TesteCentroSim(100000, 15);        
+            AssinaturaMQ a = new AssinaturaMQ(31, 5, 1, 1);
+            a.mostraChaves();
+            //TesteCentroSim.TesteCentroSim(100000, 15);        
 	}
 }
