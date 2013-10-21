@@ -10,5 +10,8 @@ public class Main {
         MatrizCentroSim a,b;
         a = new MatrizCentroSim(7);
         a.Mostra();
+        
+        
+        
 	}
 }
