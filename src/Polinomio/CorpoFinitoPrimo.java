@@ -90,9 +90,9 @@ public class CorpoFinitoPrimo {
 		return CorpoFinitoPrimo.reducao(resp);
 	}
         
-        public CorpoFinitoPrimo inversoAditivo() {
-            return CorpoFinitoPrimo.ZERO.subtraiR(this);
-        }
+    public CorpoFinitoPrimo inversoAditivo() {
+        return CorpoFinitoPrimo.ZERO.subtraiR(this);
+    }
 	
 	/*
 	 * return a - b reduzido
