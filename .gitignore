@@ -5,3 +5,4 @@ main.java
 *.jar
 *.war
 *.ear
+/bin
