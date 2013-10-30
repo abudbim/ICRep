@@ -168,6 +168,14 @@ public class CorpoFinitoPrimo {
 		return new CorpoFinitoPrimo ((byte)valor);
 	}
 	
+	public CorpoFinitoPrimo pow (int exp) {
+		CorpoFinitoPrimo resp = CorpoFinitoPrimo.UNI;
+		for (int i = 0; i < exp; i++) {
+			resp = multR(resp);
+		}
+		return resp;
+	}
+	
 	public static CorpoFinitoPrimo	reducao (int valor) {
         int resp = (byte) (valor & p) + (byte) (valor >>> m);
 		if (resp >= p) {
@@ -180,7 +188,7 @@ public class CorpoFinitoPrimo {
 		System.out.println (valor);
 	}
         
-        public void MostraMatriz () {
-            System.out.print(this.valor + "\t");
-        }
+    public void MostraMatriz () {
+        System.out.print(this.valor + "\t");
+    }
 }
