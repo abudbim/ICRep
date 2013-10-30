@@ -114,5 +114,13 @@ public class AssinaturaMQ {
         }
     }
     
-    
+    public void mostraChaves () {
+        System.out.println("Chaves Privadas : ");
+        for (int i = 0; i < ChavePriv.length; i ++)
+            ChavePriv[i].Mostra();
+        
+        System.out.println("Chaves Publicas : ");
+        for (int i = 0; i < ChavePub.length; i ++)
+            ChavePub[i].Mostra();
+    }
 }

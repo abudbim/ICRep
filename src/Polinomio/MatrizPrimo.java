@@ -8,6 +8,7 @@ public class MatrizPrimo {
          * @param valor 
          */	
 	public MatrizPrimo (CorpoFinitoPrimo[][] valor) {
+		// Teste de comentario.
 		this.coeficientes = valor.clone();
 	}
 	
