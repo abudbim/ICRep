@@ -1,5 +1,5 @@
 *.class
-main.java
+Main.java
 
 # Package Files #
 *.jar

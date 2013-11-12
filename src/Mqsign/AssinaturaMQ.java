@@ -19,14 +19,27 @@ public class AssinaturaMQ {
      * Potencia de (2^n) -1 a qual corresponde o tamnho
      */
     private int EXP_CF;
-    /**
-     * Tamanho do bloco de matriz que será usado
-     */
-    private int TAM_M;
+    
     /**
      * Numero de matrizes que farão parte das chaves
      */
-    private int NUM_M;
+    private int NM;
+    /**
+     * Tamanho do bloco de matriz que será usado
+     */
+    private int P;
+    /**
+     * Numero de blocos de cada matriz
+     */
+    private int NB;
+    /**
+     * Numero de blocos que farão parte dos vinagres
+     */
+    private int VP;
+    /**
+     * Tamanho de blocos que farao parte dos oils
+     */
+    private int OP;
     
     private MatrizCentroSim[] ChavePriv;
     
@@ -39,11 +52,14 @@ public class AssinaturaMQ {
      * @param tam_m Tamanho dos blocos das matrizes.
      * @param num_m Numero de matrizes que fazem parte da chave.
      */
-    public AssinaturaMQ(int tam_cf, int exp_cf, int tam_m, int num_m) {
-        setTAM_CF(tam_cf);
-        setEXP_CF(exp_cf);
-        setTAM_M(tam_m);
-        setNUM_M(num_m);
+    public AssinaturaMQ(int tam_cf, int exp_cf,int num_m, int tam_bloc, int num_blocs, int vinagres) {
+        this.TAM_CF = tam_cf;
+        this.EXP_CF = exp_cf;
+        this.NM = num_m;
+        this.P = tam_bloc;
+        this.NB = num_blocs;
+        this.VP = vinagres;
+        this.OP = this.NB - this.VP;
         geraChaves();
     }
 
@@ -63,48 +79,65 @@ public class AssinaturaMQ {
         this.EXP_CF = EXP_CF;
     }
 
-    public int getTAM_M() {
-        return TAM_M;
+    public int getTamBloco() {
+        return P;
     }
 
-    public void setTAM_M(int TAM_M) {
-        this.TAM_M = TAM_M;
+    public void setTamBloco(int P) {
+        this.P = P;
     }
 
-    public int getNUM_M() {
-        return NUM_M;
+    public int getNumBlocos() {
+        return NB;
     }
 
-    public void setNUM_M(int NUM_M) {
-        this.NUM_M = NUM_M;
+    public void setNumBlocos(int NP) {
+        this.NB = NP;
+    }
+
+    public int getNumVinagres() {
+        return VP;
+    }
+
+    public void setNumVinagres(int VP) {
+        this.VP = VP;
+    }
+
+    public int getNumOils() {
+        return OP;
+    }
+
+    public void setNumOils(int OP) {
+        this.OP = OP;
     }
     
     private void geraChaves() {
-        this.ChavePriv = new MatrizCentroSim[this.NUM_M + 2];
-        this.ChavePub = new MatrizCentroSim[this.NUM_M];
+        this.ChavePriv = new MatrizCentroSim[this.NM + 2];
+        this.ChavePub = new MatrizCentroSim[this.NM];
         
         // Criação da matriz para embaralhar.
-        CorpoFinitoPrimo[][] a = new CorpoFinitoPrimo[3*TAM_M][3*TAM_M];
-        for (int i = 0; i < 3*TAM_M; i++)
-            for (int j = 0; j < 3*TAM_M; j++) {
+        // Cria uma matriz de CorpoFinito com tamanho necessario (NP*P)
+        CorpoFinitoPrimo[][] a = new CorpoFinitoPrimo[NB*P][NB*P];
+        for (int i = 0; i < NB*P; i++)
+            for (int j = 0; j < NB*P; j++) {
                 a[i][j] = new CorpoFinitoPrimo();
             }
         this.ChavePriv[0] = new MatrizCentroSim(a);
         
         // Faz a transposta da matriz anteriormente criada
-        a = new CorpoFinitoPrimo[3*TAM_M][3*TAM_M];
-        for (int i = 0; i < 3*TAM_M; i++)
-            for (int j = 0; j < 3*TAM_M; j++) {
+        a = new CorpoFinitoPrimo[NB*P][NB*P];
+        for (int i = 0; i < NB*P; i++)
+            for (int j = 0; j < NB*P; j++) {
                 a[i][j] = this.ChavePriv[0].coeficientes[j][i];
             }
         this.ChavePriv[1] = new MatrizCentroSim(a);
         
         // Cria o resto das matrizes
-        for (int k = 0; k < NUM_M; k++) {
-            a = new CorpoFinitoPrimo[3*TAM_M][3*TAM_M];
-            for (int i = 0; i < 3*TAM_M; i++)
-                for (int j = 0; j < 3*TAM_M; j++) {
-                    if (i > 2*TAM_M - 1 && j > 2*TAM_M - 1)
+        for (int k = 0; k < NM; k++) {
+            a = new CorpoFinitoPrimo[NB*P][NB*P];
+            for (int i = 0; i < NB*P; i++)
+                for (int j = 0; j < NB*P; j++) {
+                    if (i > VP - 1 && j > VP - 1)
                         a[i][j] = CorpoFinitoPrimo.zero();
                     else
                         a[i][j] = new CorpoFinitoPrimo();
@@ -113,6 +146,10 @@ public class AssinaturaMQ {
             this.ChavePub[k] = this.ChavePriv[1].multiplicacao(this.ChavePriv[k+2].multiplicacao(this.ChavePriv[0]));
         }
     }
+    
+    public CorpoFinitoPrimo[] UOVSign() {
+        return null;
+    } 
     
     public void mostraChaves () {
         System.out.println("Chaves Privadas : ");
