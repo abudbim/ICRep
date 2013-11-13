@@ -147,7 +147,25 @@ public class AssinaturaMQ {
         }
     }
     
-    public CorpoFinitoPrimo[] UOVSign() {
+    public static CorpoFinitoPrimo[] UOVSign(AssinaturaMQ ass, String message) {
+    	// Chute dos valores dos vinagres
+    	CorpoFinitoPrimo[] vinegars = new CorpoFinitoPrimo[ass.getNumVinagres()*ass.getTamBloco()];
+    	for (int i = 0; i < vinegars.length; i++) {
+    		vinegars[i] = new CorpoFinitoPrimo();
+    	}
+    	// Criação de Matriz de Zeros
+    	MatrizPrimo Fhat = MatrizPrimo.zero(ass.getNumBlocos()*ass.getTamBloco(), ass.getNumOils()*ass.getTamBloco());
+    	// Calcula o valor v*A e v*B para resolução do sistema linear
+    	// Como Fhat tem tamanho v+o x v 
+    	for (int i = 0; i < vinegars.length; i++) {
+    		for (int j = 0; j < ass.getTamBloco()*ass.getNumBlocos(); j++) {
+    			for (int k = 0; k < ass.getTamBloco()*vinegars.length; k++) {
+    				Fhat.coeficientes[j][k] = ass.ChavePriv[2+i].coeficientes[j][k].multR(vinegars[i]);
+    			}
+    		}
+    	}
+    	
+    	
         return null;
     } 
     

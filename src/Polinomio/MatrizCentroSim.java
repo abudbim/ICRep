@@ -59,6 +59,22 @@ public class MatrizCentroSim {
     }
     
     /**
+     * Gera uma amtriz de zeros com o numero de linhas e colunas especificado
+     * @param linas Numero de linhas da matriz
+     * @param colunas Numero de colunas da matriz
+     * @return MatrizCentroSimetrica
+     */
+    public static MatrizCentroSim zero (int linhas, int colunas) {
+        CorpoFinitoPrimo[][] resp = new CorpoFinitoPrimo[linhas][colunas];
+        for (int i = 0; i < resp.length; i++) {
+            for (int j = 0; j < resp[0].length; j++) {
+                resp[i][j] = CorpoFinitoPrimo.zero();
+            }
+        }
+        return new MatrizCentroSim (resp);
+    }
+    
+    /**
      * Gera uma matriz identidade com o tamanho especificado.
      * @param tam tamnho da matriz.
      * @return A matriz identidade.
