@@ -9,8 +9,9 @@ public class Main {
 	 */       
         
 	public static void main(String[] args) {
-            AssinaturaMQ a = new AssinaturaMQ(31, 5, 1, 1, 2, 4);
+            AssinaturaMQ a = new AssinaturaMQ(31, 5, 3, 2, 3, 2);
             a.mostraChaves();
+            a.UOVSign("Huehihihihi");
             //TesteCentroSim.TesteCentroSim(100000, 15); 
 	}
 }

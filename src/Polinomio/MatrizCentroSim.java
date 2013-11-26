@@ -149,6 +149,44 @@ public class MatrizCentroSim {
     }
     
     /**
+     * Transpoe a Matriz
+     * @return uma nova Matriz equivalente a transposta da matriz atual
+     */
+    public MatrizCentroSim transpor() {
+    	CorpoFinitoPrimo[][] a = new CorpoFinitoPrimo[this.coeficientes[0].length][this.coeficientes.length];
+    	for (int i = 0; i < coeficientes.length; i++) {
+    		for (int j = 0; j < coeficientes[0].length; j++) {
+    			a[j][i] = coeficientes[i][j];
+    		}
+    	}
+    	return new MatrizCentroSim(a);
+    }
+    
+    
+    /**
+     * Retorna uma submatriz de acordo com os parametros passados. O coeficiente da primeira linha deve ser 1.
+     * @param lin_ini numero da linha inicial
+     * @param col_ini numero da coluna inicial
+     * @param linhas numero de linhas
+     * @param colunas numero de colunas
+     * @return Submatriz de linha inicia lin_ini e numero de linhas linhas, coluna inicial col_ini e numero de colunas
+     * colunas. 
+     */
+    public MatrizCentroSim Submatriz(int lin_ini, int col_ini, int linhas, int colunas) {
+    	if ((lin_ini + linhas - 1) > coeficientes.length || (col_ini +  colunas - 1) > coeficientes[0].length)
+    		return null;
+    	else {
+    		CorpoFinitoPrimo[][] a = new CorpoFinitoPrimo[linhas][colunas];
+    		for (int i = 0; i < linhas; i++) {
+    			for (int j = 0; j < colunas; j++) {
+    				a[i][j] = coeficientes[i + lin_ini - 1][j + col_ini - 1];
+    			}
+    		}
+    		return new MatrizCentroSim(a);
+    	}
+    }
+    
+    /**
      * Gera uma matriz cujos coeficientes são o complemento no corpo definido
      * @return MatrizCentroSim
      */
@@ -158,6 +196,19 @@ public class MatrizCentroSim {
             for (int j = 0; j <  this.coeficientes[0].length; j ++)
                 resp[i][j] = this.coeficientes[i][j].inversoAditivo();
        return new MatrizCentroSim(resp);
+    }
+    
+    /**
+     * Soma o vetor linha passado como parametro na linha tambem passada como parametro
+     * @param Linha indice da linha que sera somada com o vetor
+     * @param l Vetor a ser somado na linha
+     */
+    public void compoeMatrizPorLinha(int linha, CorpoFinitoPrimo[] l) {
+    	if (coeficientes[linha].length == l.length) {
+    		for (int i = 0; i < coeficientes[linha].length; i++) {
+    			coeficientes[linha][i] = coeficientes[linha][i].somaR(l[i]);
+    		}
+    	}
     }
     
     /**
@@ -198,6 +249,22 @@ public class MatrizCentroSim {
         else {
             return null;
         }
+    }
+    
+    /**
+     * Realiza a multiplicacao da matriz por um escalar.
+     * @param a O escalar multiplicador.
+     * @return MatrizCentroSim cujos coeficientes sao o resultado da multiplicacao pelo escalar
+     */
+    public MatrizCentroSim multiplicaEscalar(int a) {
+    	CorpoFinitoPrimo m = new CorpoFinitoPrimo(a);
+    	CorpoFinitoPrimo[][] b = new CorpoFinitoPrimo[coeficientes.length][coeficientes[0].length];
+    	for (int i = 0; i < coeficientes.length; i++) {
+            for (int j = 0; j < coeficientes[0].length; j++) {
+            	b[i][j] = coeficientes[i][j].multR(m);
+            }
+        }
+    	return new MatrizCentroSim(b);
     }
     
     /**

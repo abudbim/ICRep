@@ -111,7 +111,18 @@ public class AssinaturaMQ {
         this.OP = OP;
     }
     
-    private void geraChaves() {
+    
+    public MatrizCentroSim[] getChavePriv() {
+		return ChavePriv;
+	}
+
+	public MatrizCentroSim[] getChavePub() {
+		return ChavePub;
+	}
+	
+	
+
+	private void geraChaves() {
         this.ChavePriv = new MatrizCentroSim[this.NM + 2];
         this.ChavePub = new MatrizCentroSim[this.NM];
         
@@ -137,7 +148,7 @@ public class AssinaturaMQ {
             a = new CorpoFinitoPrimo[NB*P][NB*P];
             for (int i = 0; i < NB*P; i++)
                 for (int j = 0; j < NB*P; j++) {
-                    if (i > VP - 1 && j > VP - 1)
+                    if (i > VP*P - 1 && j > VP*P - 1)
                         a[i][j] = CorpoFinitoPrimo.zero();
                     else
                         a[i][j] = new CorpoFinitoPrimo();
@@ -147,24 +158,72 @@ public class AssinaturaMQ {
         }
     }
     
-    public static CorpoFinitoPrimo[] UOVSign(AssinaturaMQ ass, String message) {
-    	// Chute dos valores dos vinagres
-    	CorpoFinitoPrimo[] vinegars = new CorpoFinitoPrimo[ass.getNumVinagres()*ass.getTamBloco()];
-    	for (int i = 0; i < vinegars.length; i++) {
-    		vinegars[i] = new CorpoFinitoPrimo();
+    public CorpoFinitoPrimo[] UOVSign(String message) {
+    	boolean isInv = false;
+    	
+    	CorpoFinitoPrimo[][] vin;
+    	CorpoFinitoPrimo[][] vinT;
+    	
+    	MatrizCentroSim vinegars = null;
+    	MatrizCentroSim vinegarsT = null;
+    	
+    	while(!isInv) {
+    		// Chute dos valores dos vinagres
+    		vin = new CorpoFinitoPrimo[1][VP*P];
+        	vinT = new CorpoFinitoPrimo[VP*P][1];
+        	for (int i = 0; i < VP*P; i++) {
+        		vin[0][i] = new CorpoFinitoPrimo();
+        		vinT[i][0] = vin[0][i];
+        	}
+        	
+        	vinegars = new MatrizCentroSim(vin);
+        	vinegarsT = new MatrizCentroSim(vinT);
+        	
+        	System.out.println("Vinagres");
+        	vinegars.Mostra();
+        	vinegarsT.Mostra();
+        	
+        	// Criação de Matriz de Zeros de tamanho oils x oils. Verticaljoin
+        	MatrizCentroSim Fhat = MatrizCentroSim.zero(OP*P, OP*P);
+        	MatrizCentroSim partPriv;
+    	
+	    	for (int i = 0; i < OP*P; i++) {
+	    		System.out.println("Sub Matriz");
+	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).Mostra();
+	    		System.out.println("Multiplicacao");
+	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).multiplicaEscalar(2).Mostra();
+	    		// Fhat = B * vT * 2, porem B*vT é vetor coluna e precisa ser transposto
+	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).multiplicaEscalar(2).transpor().Mostra();
+	    		// Para cada vetor obtido forma a matriz linha a linha
+	    		Fhat.compoeMatrizPorLinha(i, ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).multiplicaEscalar(2).transpor().coeficientes[0]);
+	    		System.out.println("Matriz dos produtos");
+	    		Fhat.Mostra();
+	    	}
+	    	
+	    	if (Fhat.inverteMatriz() != null) {
+	    		System.out.println("A matriz é inversivel");
+	    		Fhat = Fhat.inverteMatriz();
+	    		isInv = true;
+	    	}
     	}
-    	// Criação de Matriz de Zeros
-    	MatrizPrimo Fhat = MatrizPrimo.zero(ass.getNumBlocos()*ass.getTamBloco(), ass.getNumOils()*ass.getTamBloco());
     	// Calcula o valor v*A e v*B para resolução do sistema linear
     	// Como Fhat tem tamanho v+o x v 
-    	for (int i = 0; i < vinegars.length; i++) {
-    		for (int j = 0; j < ass.getTamBloco()*ass.getNumBlocos(); j++) {
-    			for (int k = 0; k < ass.getTamBloco()*vinegars.length; k++) {
-    				Fhat.coeficientes[j][k] = ass.ChavePriv[2+i].coeficientes[j][k].multR(vinegars[i]);
-    			}
-    		}
-    	}
+    	MatrizCentroSim a;
+    	CorpoFinitoPrimo[][] b = MatrizCentroSim.zero(1, OP*P).coeficientes;
+    	a = new MatrizCentroSim(b);
+    	System.out.println("Vetor b : inicio");
+    	a.Mostra();
     	
+    	for (int i = 0; i < OP*P; i++) {
+    		b[0][i] = new CorpoFinitoPrimo((byte) (message.charAt(i) - (vinegars.multiplicacao(ChavePriv[2+i].Submatriz(1, 1, VP*P, VP*P)).multiplicacao(vinegarsT).coeficientes[0][0].valor)));
+    		a = new MatrizCentroSim(b);
+        	a.Mostra();
+    	}
+    	System.out.println("Vetor b : fim");
+    	a = new MatrizCentroSim(b);
+    	a.Mostra();
+    	
+    	   	
     	
         return null;
     } 
