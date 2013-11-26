@@ -52,14 +52,14 @@ public class AssinaturaMQ {
      * @param tam_m Tamanho dos blocos das matrizes.
      * @param num_m Numero de matrizes que fazem parte da chave.
      */
-    public AssinaturaMQ(int tam_cf, int exp_cf,int num_m, int tam_bloc, int num_blocs, int vinagres) {
+    public AssinaturaMQ(int tam_cf, int exp_cf, int tam_bloc, int num_blocs, int vinagres) {
         this.TAM_CF = tam_cf;
         this.EXP_CF = exp_cf;
-        this.NM = num_m;
         this.P = tam_bloc;
         this.NB = num_blocs;
         this.VP = vinagres;
         this.OP = this.NB - this.VP;
+        this.NM = OP*P;
         geraChaves();
     }
 
@@ -125,23 +125,34 @@ public class AssinaturaMQ {
 	private void geraChaves() {
         this.ChavePriv = new MatrizCentroSim[this.NM + 2];
         this.ChavePub = new MatrizCentroSim[this.NM];
+        boolean isInv = false;
+        CorpoFinitoPrimo[][] a;
+        MatrizCentroSim b;
         
-        // Cria√ß√£o da matriz para embaralhar.
-        // Cria uma matriz de CorpoFinito com tamanho necessario (NP*P)
-        CorpoFinitoPrimo[][] a = new CorpoFinitoPrimo[NB*P][NB*P];
-        for (int i = 0; i < NB*P; i++)
-            for (int j = 0; j < NB*P; j++) {
-                a[i][j] = new CorpoFinitoPrimo();
-            }
-        this.ChavePriv[0] = new MatrizCentroSim(a);
+        while (!isInv) {
         
-        // Faz a transposta da matriz anteriormente criada
-        a = new CorpoFinitoPrimo[NB*P][NB*P];
-        for (int i = 0; i < NB*P; i++)
-            for (int j = 0; j < NB*P; j++) {
-                a[i][j] = this.ChavePriv[0].coeficientes[j][i];
-            }
-        this.ChavePriv[1] = new MatrizCentroSim(a);
+	        // Cria√ß√£o da matriz para embaralhar.
+	        // Cria uma matriz de CorpoFinito com tamanho necessario (NP*P)
+	        a = new CorpoFinitoPrimo[NB*P][NB*P];
+	        for (int i = 0; i < NB*P; i++)
+	            for (int j = 0; j < NB*P; j++) {
+	                a[i][j] = new CorpoFinitoPrimo();
+	            }
+	        b = new MatrizCentroSim(a);
+	        if (b.inverteMatriz() != null) {
+	        	isInv = true;
+	        	this.ChavePriv[0] = b;
+	        }
+	        
+	        // Faz a transposta da matriz anteriormente criada
+	        a = new CorpoFinitoPrimo[NB*P][NB*P];
+	        for (int i = 0; i < NB*P; i++)
+	            for (int j = 0; j < NB*P; j++) {
+	                a[i][j] = this.ChavePriv[0].coeficientes[j][i];
+	            }
+	        this.ChavePriv[1] = new MatrizCentroSim(a);
+        
+        }
         
         // Cria o resto das matrizes
         for (int k = 0; k < NM; k++) {
@@ -154,11 +165,11 @@ public class AssinaturaMQ {
                         a[i][j] = new CorpoFinitoPrimo();
                 }
             this.ChavePriv[k + 2] = new MatrizCentroSim(a);
-            this.ChavePub[k] = this.ChavePriv[1].multiplicacao(this.ChavePriv[k+2].multiplicacao(this.ChavePriv[0]));
+            this.ChavePub[k] = this.ChavePriv[0].multiplicacao(this.ChavePriv[k+2].multiplicacao(this.ChavePriv[1]));
         }
     }
     
-    public CorpoFinitoPrimo[] UOVSign(String message) {
+    public MatrizCentroSim UOVSign(CorpoFinitoPrimo[] message) {
     	boolean isInv = false;
     	
     	CorpoFinitoPrimo[][] vin;
@@ -166,6 +177,8 @@ public class AssinaturaMQ {
     	
     	MatrizCentroSim vinegars = null;
     	MatrizCentroSim vinegarsT = null;
+    	
+    	MatrizCentroSim Fhat = MatrizCentroSim.zero(OP*P, OP*P);
     	
     	while(!isInv) {
     		// Chute dos valores dos vinagres
@@ -184,18 +197,12 @@ public class AssinaturaMQ {
         	vinegarsT.Mostra();
         	
         	// CriaÁ„o de Matriz de Zeros de tamanho oils x oils. Verticaljoin
-        	MatrizCentroSim Fhat = MatrizCentroSim.zero(OP*P, OP*P);
         	MatrizCentroSim partPriv;
     	
 	    	for (int i = 0; i < OP*P; i++) {
-	    		System.out.println("Sub Matriz");
-	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).Mostra();
-	    		System.out.println("Multiplicacao");
-	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).multiplicaEscalar(2).Mostra();
-	    		// Fhat = B * vT * 2, porem B*vT È vetor coluna e precisa ser transposto
-	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).multiplicaEscalar(2).transpor().Mostra();
 	    		// Para cada vetor obtido forma a matriz linha a linha
-	    		Fhat.compoeMatrizPorLinha(i, ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).multiplicaEscalar(2).transpor().coeficientes[0]);
+	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).transpor().soma(vinegarsT.transpor().multiplicacao(ChavePriv[2+i].Submatriz(1, VP*P + 1, VP*P, OP*P))).Mostra();
+	    		Fhat.compoeMatrizPorLinha(i, ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).transpor().soma(vinegarsT.transpor().multiplicacao(ChavePriv[2+i].Submatriz(1, VP*P + 1, VP*P, OP*P))).coeficientes[0]);
 	    		System.out.println("Matriz dos produtos");
 	    		Fhat.Mostra();
 	    	}
@@ -215,7 +222,9 @@ public class AssinaturaMQ {
     	a.Mostra();
     	
     	for (int i = 0; i < OP*P; i++) {
-    		b[0][i] = new CorpoFinitoPrimo((byte) (message.charAt(i) - (vinegars.multiplicacao(ChavePriv[2+i].Submatriz(1, 1, VP*P, VP*P)).multiplicacao(vinegarsT).coeficientes[0][0].valor)));
+    		message[i].Mostra();
+    		vinegars.multiplicacao(ChavePriv[2+i].Submatriz(1, 1, VP*P, VP*P)).multiplicacao(vinegarsT).coeficientes[0][0].Mostra();
+    		b[0][i] = (message[i].subtraiR(vinegars.multiplicacao(ChavePriv[2+i].Submatriz(1, 1, VP*P, VP*P)).multiplicacao(vinegarsT).coeficientes[0][0]));
     		a = new MatrizCentroSim(b);
         	a.Mostra();
     	}
@@ -223,10 +232,48 @@ public class AssinaturaMQ {
     	a = new MatrizCentroSim(b);
     	a.Mostra();
     	
-    	   	
+    	MatrizCentroSim oils = a.multiplicacao(Fhat.transpor());
     	
-        return null;
+    	System.out.println("oilssss :");
+    	oils.Mostra();
+    	
+    	CorpoFinitoPrimo[][] signCoef = new CorpoFinitoPrimo[1][OP*P+VP*P];
+    	
+    	for (int i = 0; i < VP*P; i++) {
+    		signCoef[0][i] = vinegars.coeficientes[0][i];
+    	}
+    	
+    	for (int j = VP*P; j < VP*P + OP*P; j++) {
+    		signCoef[0][j] = oils.coeficientes[0][j - VP*P];
+    	}
+    	System.out.println("Assinatura depois de vinagres e oils");
+    	
+    	MatrizCentroSim a1 = new MatrizCentroSim(signCoef);
+    	a1.Mostra();
+    	
+    	a1 = a1.multiplicacao(ChavePriv[0].inverteMatriz());
+    	System.out.println("Vetor de oils e vinegars multiplicado por Sinv");
+    	a1.Mostra();
+    	
+        return a1;
     } 
+    
+    /*
+     * Tamanho da mensagem e numero de matrizes deve ser oils.
+     * 
+     */
+    public boolean UOVCheck(CorpoFinitoPrimo[] message, MatrizCentroSim sign) {
+    	System.out.println("Multiplicacoes");
+    	
+    	for (int i = 0; i < OP*P; i++) { 
+    		System.out.println("Valor encontrado em " + i);
+			sign.multiplicacao(ChavePub[i]).multiplicacao(sign.transpor()).Mostra();
+    		if (!sign.multiplicacao(ChavePub[i]).multiplicacao(sign.transpor()).coeficientes[0][0].isEqual(message[i])) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
     
     public void mostraChaves () {
         System.out.println("Chaves Privadas : ");

@@ -9,9 +9,12 @@ public class Main {
 	 */       
         
 	public static void main(String[] args) {
-            AssinaturaMQ a = new AssinaturaMQ(31, 5, 3, 2, 3, 2);
+            AssinaturaMQ a = new AssinaturaMQ(31, 5, 2, 3, 2);
             a.mostraChaves();
-            a.UOVSign("Huehihihihi");
+            CorpoFinitoPrimo[] teste = new CorpoFinitoPrimo[2];
+            teste[0] = new CorpoFinitoPrimo(5);
+            teste[1] = new CorpoFinitoPrimo(5);
+            System.out.println(a.UOVCheck(teste, a.UOVSign(teste)));
             //TesteCentroSim.TesteCentroSim(100000, 15); 
 	}
 }
