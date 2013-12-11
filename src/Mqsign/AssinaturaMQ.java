@@ -121,7 +121,9 @@ public class AssinaturaMQ {
 	}
 	
 	
-
+	/**
+	 * Metodo responsavel pela geracao das chaves que serao usadas para a assinatura baseada em MQ.
+	 */
 	private void geraChaves() {
         this.ChavePriv = new MatrizCentroSim[this.NM + 2];
         this.ChavePub = new MatrizCentroSim[this.NM];
@@ -181,6 +183,12 @@ public class AssinaturaMQ {
         }
     }
     
+	/**
+	 * Tem como objetivo gera a assinatura da mensagem fornecido com as chaves ja criadas. v*A*vt + 2*o*Bt*vt = message, a equacao a ser resolvida as 
+	 * variaveis sao v e o.
+	 * @param message um vetor de CorpoFinitoPrimo com a mensagem a ser assinada.
+	 * @return A assinatura da mensagem.
+	 */
     public MatrizCentroSim UOVSign(CorpoFinitoPrimo[] message) {
     	boolean isInv = false;
     	
@@ -207,12 +215,10 @@ public class AssinaturaMQ {
         	System.out.println("Vinagres");
         	vinegars.Mostra();
         	vinegarsT.Mostra();
-        	
-        	// Criação de Matriz de Zeros de tamanho oils x oils. Verticaljoin
-        	MatrizCentroSim partPriv;
     	
 	    	for (int i = 0; i < OP*P; i++) {
-	    		// Para cada vetor obtido forma a matriz linha a linha
+	    		// Realiza a operação Bt*v + vt*B para obter o 2Bt*v. Porem, agrupando os vetores resultantes das operacoes com cada chave
+	    		// temos uma matriz de OxO
 	    		ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).transpor().soma(vinegarsT.transpor().multiplicacao(ChavePriv[2+i].Submatriz(1, VP*P + 1, VP*P, OP*P))).Mostra();
 	    		Fhat.compoeMatrizPorLinha(i, ChavePriv[2+i].Submatriz(VP*P + 1, 1, OP*P, VP*P).multiplicacao(vinegarsT).transpor().soma(vinegarsT.transpor().multiplicacao(ChavePriv[2+i].Submatriz(1, VP*P + 1, VP*P, OP*P))).coeficientes[0]);
 	    		System.out.println("Matriz dos produtos");
@@ -225,14 +231,14 @@ public class AssinaturaMQ {
 	    		isInv = true;
 	    	}
     	}
-    	// Calcula o valor v*A e v*B para resolução do sistema linear
-    	// Como Fhat tem tamanho v+o x v 
+    	
     	MatrizCentroSim a;
     	CorpoFinitoPrimo[][] b = MatrizCentroSim.zero(1, OP*P).coeficientes;
     	a = new MatrizCentroSim(b);
     	System.out.println("Vetor b : inicio");
     	a.Mostra();
     	
+    	// Realiza  as operacao para obtencao de v*A*vt. O resultado dessa conta , para cada uma das chaves privadas é colocado no vetor b
     	for (int i = 0; i < OP*P; i++) {
     		message[i].Mostra();
     		vinegars.multiplicacao(ChavePriv[2+i].Submatriz(1, 1, VP*P, VP*P)).multiplicacao(vinegarsT).coeficientes[0][0].Mostra();
@@ -244,11 +250,13 @@ public class AssinaturaMQ {
     	a = new MatrizCentroSim(b);
     	a.Mostra();
     	
+    	// Resolve o sistema linear obtendo o valor dos oils.
     	MatrizCentroSim oils = a.multiplicacao(Fhat.transpor());
     	
     	System.out.println("oilssss :");
     	oils.Mostra();
     	
+    	// Cria um vetor que junta os valores chutados para os vinegars com o valor obtido para os Oils.
     	CorpoFinitoPrimo[][] signCoef = new CorpoFinitoPrimo[1][OP*P+VP*P];
     	
     	for (int i = 0; i < VP*P; i++) {
@@ -263,6 +271,7 @@ public class AssinaturaMQ {
     	MatrizCentroSim a1 = new MatrizCentroSim(signCoef);
     	a1.Mostra();
     	
+    	// Multiplica pelo inverso de S (matriz que embaralha ChavesPriv) para terminar o calculo da assinatura
     	System.out.println("S inverso :");
     	ChavePriv[0].inverteMatriz().Mostra();
     	
@@ -276,6 +285,13 @@ public class AssinaturaMQ {
     /*
      * Tamanho da mensagem e numero de matrizes deve ser oils.
      * 
+     */
+    
+    /**
+     * Faz a verificacao da assinatura checando se u*Pi*ut = messagei para todas as matrizes que compoe a chave a publica
+     * @param message Mensagem a qual deseja-se checar a assinatura.
+     * @param sign Assisnatura fornecida.
+     * @return True caso a assinatura esteja de acordo com a mensagem, False caso contrario.
      */
     public boolean UOVCheck(CorpoFinitoPrimo[] message, MatrizCentroSim sign) {
     	System.out.println("Multiplicacoes");
