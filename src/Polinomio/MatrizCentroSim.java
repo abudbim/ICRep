@@ -301,7 +301,7 @@ public class MatrizCentroSim {
      */    
     public void escalona (int l1, int l2, int col, MatrizCentroSim b) {
         CorpoFinitoPrimo coef = this.coeficientes[l2][l1].multR(this.coeficientes[l1][l1].inverso()); // b/a
-        for (int i = 0; i < coeficientes[0].length; i++) {
+        for (int i = 0; i < coeficientes.length; i++) {
             this.coeficientes[l2][i] = this.coeficientes[l2][i].subtraiR(this.coeficientes[l1][i].multR(coef)); // l2 = l2 - l1*coef
             b.coeficientes[l2][i] = b.coeficientes[l2][i].subtraiR(b.coeficientes[l1][i].multR(coef)); // l2 = l2 - l1*coef
         }
@@ -395,6 +395,19 @@ public class MatrizCentroSim {
             return null;
     }
     
+    public void MontaMatriz (int linha_ini, int col_ini, MatrizCentroSim b) {
+    	if (linha_ini + b.coeficientes.length > this.coeficientes.length || col_ini 
+    			+ b.coeficientes[0].length > this.coeficientes[0].length)
+    		return;
+    	else {
+    		for (int i = 0; i < b.coeficientes.length; i++) {
+    			for (int j = 0; j < b.coeficientes[0].length; j++) {
+    				this.coeficientes[linha_ini + i][col_ini + j] = new CorpoFinitoPrimo(b.coeficientes[i][j].valor);
+    			}
+    		}
+    	}
+    }
+    
     /**
      * Imprimi na tela a matriz
      */
@@ -406,6 +419,13 @@ public class MatrizCentroSim {
             System.out.println();
         }
         System.out.println();
+        StringBuilder s = new StringBuilder();
+        for (int j = 0; j < this.coeficientes.length; j++)
+        	for (int k = 0; k < this.coeficientes[0].length; k++){
+        		s.append(this.coeficientes[j][k].valor);
+        		s.append(",");
+        	}
+        System.out.println(s.toString());
     }
         
 }

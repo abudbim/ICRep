@@ -134,7 +134,8 @@ public class CorpoFinitoPrimo {
                 F = F - alpha*G;
                 B = B - alpha*C;
             }
-            if (F == 1) return new CorpoFinitoPrimo ((byte)B);
+            //if (F == 1) return new CorpoFinitoPrimo ((byte)B);
+            if (F == 1) return CorpoFinitoPrimo.reducao(B);
             else return null;
         }
         else

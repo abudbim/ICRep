@@ -126,14 +126,30 @@ public class AssinaturaMQ {
         this.ChavePriv = new MatrizCentroSim[this.NM + 2];
         this.ChavePub = new MatrizCentroSim[this.NM];
         boolean isInv = false;
+        MatrizCentroSim a1;
         CorpoFinitoPrimo[][] a;
         MatrizCentroSim b;
         
         while (!isInv) {
+        	
+        	// Cria uma matriz Zero para preencher cada bloco com matrizes centrossimetricas
+        	a1 = MatrizCentroSim.zero(NB*P);
+        	for (int i = 0; i < VP + OP; i++) {
+        		for (int j = 0; j < VP + OP; j++) {
+        			a1.MontaMatriz(i*P, j*P, new MatrizCentroSim(P));
+        		}
+        	}
+        	
+        	if (a1.inverteMatriz() != null) {
+        		isInv = true;
+        	}
+        	
+        	ChavePriv[0] = a1;
+        	ChavePriv[1] = a1.transpor();
         
 	        // Criação da matriz para embaralhar.
 	        // Cria uma matriz de CorpoFinito com tamanho necessario (NP*P)
-	        a = new CorpoFinitoPrimo[NB*P][NB*P];
+	        /*a = new CorpoFinitoPrimo[NB*P][NB*P];
 	        for (int i = 0; i < NB*P; i++)
 	            for (int j = 0; j < NB*P; j++) {
 	                a[i][j] = new CorpoFinitoPrimo();
@@ -142,29 +158,25 @@ public class AssinaturaMQ {
 	        if (b.inverteMatriz() != null) {
 	        	isInv = true;
 	        	this.ChavePriv[0] = b;
-	        }
-	        
-	        // Faz a transposta da matriz anteriormente criada
-	        a = new CorpoFinitoPrimo[NB*P][NB*P];
-	        for (int i = 0; i < NB*P; i++)
-	            for (int j = 0; j < NB*P; j++) {
-	                a[i][j] = this.ChavePriv[0].coeficientes[j][i];
-	            }
-	        this.ChavePriv[1] = new MatrizCentroSim(a);
-        
+	        	// Faz a transposta da matriz anteriormente criada
+		        a = new CorpoFinitoPrimo[NB*P][NB*P];
+		        for (int i = 0; i < NB*P; i++)
+		            for (int j = 0; j < NB*P; j++) {
+		                a[i][j] = this.ChavePriv[0].coeficientes[j][i];
+		            }
+		        this.ChavePriv[1] = new MatrizCentroSim(a);
+	        }*/        
         }
         
         // Cria o resto das matrizes
         for (int k = 0; k < NM; k++) {
-            a = new CorpoFinitoPrimo[NB*P][NB*P];
-            for (int i = 0; i < NB*P; i++)
-                for (int j = 0; j < NB*P; j++) {
-                    if (i > VP*P - 1 && j > VP*P - 1)
-                        a[i][j] = CorpoFinitoPrimo.zero();
-                    else
-                        a[i][j] = new CorpoFinitoPrimo();
+            a1 = MatrizCentroSim.zero(NB*P);
+            for (int i = 0; i < VP + OP; i++)
+                for (int j = 0; j < VP + OP; j++) {
+                    a1.MontaMatriz(i*P, j*P, new MatrizCentroSim(P));
                 }
-            this.ChavePriv[k + 2] = new MatrizCentroSim(a);
+            a1.MontaMatriz(VP*P, VP*P, MatrizCentroSim.zero(OP*P));
+            this.ChavePriv[k + 2] = a1;
             this.ChavePub[k] = this.ChavePriv[0].multiplicacao(this.ChavePriv[k+2].multiplicacao(this.ChavePriv[1]));
         }
     }
@@ -251,6 +263,9 @@ public class AssinaturaMQ {
     	MatrizCentroSim a1 = new MatrizCentroSim(signCoef);
     	a1.Mostra();
     	
+    	System.out.println("S inverso :");
+    	ChavePriv[0].inverteMatriz().Mostra();
+    	
     	a1 = a1.multiplicacao(ChavePriv[0].inverteMatriz());
     	System.out.println("Vetor de oils e vinegars multiplicado por Sinv");
     	a1.Mostra();
@@ -277,11 +292,15 @@ public class AssinaturaMQ {
     
     public void mostraChaves () {
         System.out.println("Chaves Privadas : ");
-        for (int i = 0; i < ChavePriv.length; i ++)
+        StringBuilder s;
+        for (int i = 0; i < ChavePriv.length; i ++) {
             ChavePriv[i].Mostra();
+        }
         
         System.out.println("Chaves Publicas : ");
-        for (int i = 0; i < ChavePub.length; i ++)
+        s = new StringBuilder();
+        for (int i = 0; i < ChavePub.length; i ++) {
             ChavePub[i].Mostra();
+        }
     }
 }
